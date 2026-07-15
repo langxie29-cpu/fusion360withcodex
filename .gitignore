@@ -1,0 +1,28 @@
+# Python
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Editors and operating systems
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db
+*.swp
+
+# Local output and logs
+artifacts/
+*.log
+*.tmp
+
+# Generated CAD exports
+*.f3d
+*.f3z
+*.step
+*.stp
+*.stl
+
+# Private product-study examples kept in this working directory only
+examples/iphone17-*
