@@ -1,0 +1,15 @@
+interface:
+  display_name: "Fusion AI 建模"
+  short_description: "把上传草图与机械需求变成可编辑的 Fusion 360 模型"
+  default_prompt: "使用 $fusion-ai-modeler 识别我上传的草图，确认关键尺寸，并生成经过校验的 Fusion 360 参数模型。"
+
+dependencies:
+  tools:
+    - type: "mcp"
+      value: "fusion360"
+      description: "本机 Autodesk Fusion 360 类型化建模桥接"
+      transport: "streamable_http"
+      url: "http://127.0.0.1:9100/"
+
+policy:
+  allow_implicit_invocation: true

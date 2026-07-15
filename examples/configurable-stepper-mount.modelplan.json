@@ -1,0 +1,47 @@
+{
+  "version": "1.0",
+  "component_name": "Configurable_Stepper_Mount",
+  "units": "mm",
+  "parameters": [
+    {"name": "plate_width", "expression": "72 mm", "unit": "mm", "comment": "Adapter plate width"},
+    {"name": "plate_depth", "expression": "72 mm", "unit": "mm", "comment": "Adapter plate depth"},
+    {"name": "plate_thickness", "expression": "5 mm", "unit": "mm", "comment": "Adapter plate thickness"},
+    {"name": "plate_radius", "expression": "8 mm", "unit": "mm", "comment": "Tangent corner radius"},
+    {"name": "motor_pitch", "expression": "31 mm", "unit": "mm", "comment": "Generic candidate pitch; verify the exact motor drawing"},
+    {"name": "motor_hole", "expression": "3.4 mm", "unit": "mm", "comment": "Generic small-fastener clearance example"},
+    {"name": "shaft_clearance", "expression": "24 mm", "unit": "mm", "comment": "Generic shaft/boss clearance; verify motor"},
+    {"name": "frame_pitch", "expression": "56 mm", "unit": "mm", "comment": "Host-frame mounting pitch"},
+    {"name": "frame_hole", "expression": "5.2 mm", "unit": "mm", "comment": "Generic frame clearance"},
+    {"name": "spacer_outer", "expression": "9.5 mm", "unit": "mm", "comment": "Motor spacer outer diameter"},
+    {"name": "spacer_height", "expression": "5 mm", "unit": "mm", "comment": "Motor spacer height"},
+    {"name": "rib_width", "expression": "8 mm", "unit": "mm", "comment": "Raised side rib width"},
+    {"name": "rib_length", "expression": "44 mm", "unit": "mm", "comment": "Raised side rib length"}
+  ],
+  "features": [
+    {"id": "adapter_plate", "type": "sketch_extrude", "name": "Motor Adapter Plate", "operation": "new_body", "appearance": "silver_aluminum", "plane": "xy", "offset": "0 mm", "profile": {"shape": "rounded_rectangle", "center": ["0 mm", "0 mm"], "width": "plate_width", "height": "plate_depth", "radius": "plate_radius"}, "distance": "plate_thickness"},
+    {"id": "plate_roundover", "type": "edge_fillet", "name": "Plate Perimeter Roundover", "target_body": "Motor Adapter Plate", "radius": "1.0 mm", "selection": "top_and_bottom_perimeters"},
+    {"id": "shaft_opening", "type": "hole_pattern", "name": "Central Shaft Clearance", "operation": "cut", "plane": "xy", "offset": "0 mm", "diameter": "shaft_clearance", "points": [["0 mm", "0 mm"]], "depth": "through_all", "direction": "positive"},
+    {"id": "motor_holes", "type": "hole_pattern", "name": "Motor Mount Pattern", "operation": "cut", "plane": "xy", "offset": "0 mm", "diameter": "motor_hole", "points": [["-motor_pitch / 2", "-motor_pitch / 2"], ["motor_pitch / 2", "-motor_pitch / 2"], ["motor_pitch / 2", "motor_pitch / 2"], ["-motor_pitch / 2", "motor_pitch / 2"]], "depth": "through_all", "direction": "positive"},
+    {"id": "frame_holes", "type": "hole_pattern", "name": "Host Frame Pattern", "operation": "cut", "plane": "xy", "offset": "0 mm", "diameter": "frame_hole", "points": [["-frame_pitch / 2", "-frame_pitch / 2"], ["frame_pitch / 2", "-frame_pitch / 2"], ["frame_pitch / 2", "frame_pitch / 2"], ["-frame_pitch / 2", "frame_pitch / 2"]], "depth": "through_all", "direction": "positive"},
+    {"id": "locating_ring", "type": "sketch_extrude", "name": "Motor Locating Ring", "operation": "new_body", "appearance": "silver_metal", "plane": "xy", "offset": "plate_thickness", "profile": {"shape": "annulus", "center": ["0 mm", "0 mm"], "outer_diameter": "30 mm", "inner_diameter": "shaft_clearance"}, "distance": "2 mm"},
+    {"id": "locating_ring_roundover", "type": "edge_fillet", "name": "Locating Ring Highlight", "target_body": "Motor Locating Ring", "radius": "0.25 mm", "selection": "top_perimeter"},
+    {"id": "spacer_nw", "type": "sketch_extrude", "name": "Motor Spacer NW", "operation": "new_body", "appearance": "silver_metal", "plane": "xy", "offset": "plate_thickness", "profile": {"shape": "annulus", "center": ["-motor_pitch / 2", "motor_pitch / 2"], "outer_diameter": "spacer_outer", "inner_diameter": "motor_hole"}, "distance": "spacer_height"},
+    {"id": "spacer_ne", "type": "sketch_extrude", "name": "Motor Spacer NE", "operation": "new_body", "appearance": "silver_metal", "plane": "xy", "offset": "plate_thickness", "profile": {"shape": "annulus", "center": ["motor_pitch / 2", "motor_pitch / 2"], "outer_diameter": "spacer_outer", "inner_diameter": "motor_hole"}, "distance": "spacer_height"},
+    {"id": "spacer_se", "type": "sketch_extrude", "name": "Motor Spacer SE", "operation": "new_body", "appearance": "silver_metal", "plane": "xy", "offset": "plate_thickness", "profile": {"shape": "annulus", "center": ["motor_pitch / 2", "-motor_pitch / 2"], "outer_diameter": "spacer_outer", "inner_diameter": "motor_hole"}, "distance": "spacer_height"},
+    {"id": "spacer_sw", "type": "sketch_extrude", "name": "Motor Spacer SW", "operation": "new_body", "appearance": "silver_metal", "plane": "xy", "offset": "plate_thickness", "profile": {"shape": "annulus", "center": ["-motor_pitch / 2", "-motor_pitch / 2"], "outer_diameter": "spacer_outer", "inner_diameter": "motor_hole"}, "distance": "spacer_height"},
+    {"id": "left_rib", "type": "sketch_extrude", "name": "Left Reinforcement Rib", "operation": "new_body", "appearance": "silver_aluminum", "plane": "xy", "offset": "plate_thickness", "profile": {"shape": "rounded_rectangle", "center": ["-29 mm", "0 mm"], "width": "rib_width", "height": "rib_length", "radius": "3.8 mm"}, "distance": "2 mm"},
+    {"id": "left_rib_roundover", "type": "edge_fillet", "name": "Left Rib Roundover", "target_body": "Left Reinforcement Rib", "radius": "0.5 mm", "selection": "top_perimeter"},
+    {"id": "right_rib", "type": "sketch_extrude", "name": "Right Reinforcement Rib", "operation": "new_body", "appearance": "silver_aluminum", "plane": "xy", "offset": "plate_thickness", "profile": {"shape": "rounded_rectangle", "center": ["29 mm", "0 mm"], "width": "rib_width", "height": "rib_length", "radius": "3.8 mm"}, "distance": "2 mm"},
+    {"id": "right_rib_roundover", "type": "edge_fillet", "name": "Right Rib Roundover", "target_body": "Right Reinforcement Rib", "radius": "0.5 mm", "selection": "top_perimeter"},
+    {"id": "isolation_pad_nw", "type": "cylinder", "name": "Isolation Pad NW", "operation": "new_body", "appearance": "black", "diameter": "10 mm", "height": "2 mm", "center": ["-22 mm", "22 mm", "-2 mm"]},
+    {"id": "isolation_pad_ne", "type": "cylinder", "name": "Isolation Pad NE", "operation": "new_body", "appearance": "black", "diameter": "10 mm", "height": "2 mm", "center": ["22 mm", "22 mm", "-2 mm"]},
+    {"id": "isolation_pad_se", "type": "cylinder", "name": "Isolation Pad SE", "operation": "new_body", "appearance": "black", "diameter": "10 mm", "height": "2 mm", "center": ["22 mm", "-22 mm", "-2 mm"]},
+    {"id": "isolation_pad_sw", "type": "cylinder", "name": "Isolation Pad SW", "operation": "new_body", "appearance": "black", "diameter": "10 mm", "height": "2 mm", "center": ["-22 mm", "-22 mm", "-2 mm"]}
+  ],
+  "assumptions": [
+    "Original generic adapter design; no motor vendor geometry or product branding is reproduced.",
+    "The 31 mm pitch and all clearances are configurable candidates, not a claim of compatibility with a specific motor.",
+    "Load, vibration, fastener engagement, tolerances, material, and manufacturing method require engineering verification."
+  ],
+  "source_analysis": {"kind": "original parametric example", "orientation": "motor side toward +Z", "scale_reference": "explicit parameters"}
+}

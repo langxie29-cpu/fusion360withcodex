@@ -1,0 +1,46 @@
+{
+  "version": "1.0",
+  "component_name": "Generic_Sensor_Enclosure",
+  "units": "mm",
+  "parameters": [
+    {"name": "case_width", "expression": "90 mm", "unit": "mm", "comment": "Editable enclosure width"},
+    {"name": "case_depth", "expression": "60 mm", "unit": "mm", "comment": "Editable enclosure depth"},
+    {"name": "case_height", "expression": "22 mm", "unit": "mm", "comment": "Shell height excluding lid"},
+    {"name": "case_radius", "expression": "8 mm", "unit": "mm", "comment": "Tangent plan-view corner radius"},
+    {"name": "wall", "expression": "4 mm", "unit": "mm", "comment": "Nominal side wall"},
+    {"name": "shell_floor", "expression": "3 mm", "unit": "mm", "comment": "Nominal floor thickness"},
+    {"name": "lid_thickness", "expression": "2.4 mm", "unit": "mm", "comment": "Removable lid thickness"},
+    {"name": "lid_inset", "expression": "1 mm", "unit": "mm", "comment": "Lid inset from shell outline"},
+    {"name": "fastener_x", "expression": "41 mm", "unit": "mm", "comment": "Fastener X coordinate"},
+    {"name": "fastener_y", "expression": "25 mm", "unit": "mm", "comment": "Fastener Y coordinate"},
+    {"name": "clearance_hole", "expression": "3.4 mm", "unit": "mm", "comment": "Generic M3-style clearance example; verify process"},
+    {"name": "window_x", "expression": "14 mm", "unit": "mm", "comment": "Optical window center"},
+    {"name": "window_outer", "expression": "24 mm", "unit": "mm", "comment": "Window bezel outside diameter"},
+    {"name": "window_inner", "expression": "20 mm", "unit": "mm", "comment": "Window clear aperture"}
+  ],
+  "features": [
+    {"id": "shell", "type": "sketch_extrude", "name": "Enclosure Shell", "operation": "new_body", "appearance": "black", "plane": "xy", "offset": "0 mm", "profile": {"shape": "rounded_rectangle", "center": ["0 mm", "0 mm"], "width": "case_width", "height": "case_depth", "radius": "case_radius"}, "distance": "case_height"},
+    {"id": "shell_roundover", "type": "edge_fillet", "name": "Shell Perimeter Roundover", "target_body": "Enclosure Shell", "radius": "1.5 mm", "selection": "top_and_bottom_perimeters"},
+    {"id": "shell_cavity", "type": "sketch_extrude", "name": "Open Interior Cavity", "operation": "cut", "plane": "xy", "offset": "shell_floor", "profile": {"shape": "rounded_rectangle", "center": ["0 mm", "0 mm"], "width": "case_width - wall * 2", "height": "case_depth - wall * 2", "radius": "case_radius - wall / 2"}, "distance": "case_height - shell_floor"},
+    {"id": "lid", "type": "sketch_extrude", "name": "Silver Service Lid", "operation": "new_body", "appearance": "silver_aluminum", "plane": "xy", "offset": "case_height", "profile": {"shape": "rounded_rectangle", "center": ["0 mm", "0 mm"], "width": "case_width - lid_inset * 2", "height": "case_depth - lid_inset * 2", "radius": "case_radius - lid_inset"}, "distance": "lid_thickness"},
+    {"id": "lid_roundover", "type": "edge_fillet", "name": "Lid Edge Roundover", "target_body": "Silver Service Lid", "radius": "0.7 mm", "selection": "top_and_bottom_perimeters"},
+    {"id": "fastener_clearances", "type": "hole_pattern", "name": "Four Lid Fastener Clearances", "operation": "cut", "plane": "xy", "offset": "0 mm", "diameter": "clearance_hole", "points": [["-fastener_x", "-fastener_y"], ["fastener_x", "-fastener_y"], ["fastener_x", "fastener_y"], ["-fastener_x", "fastener_y"]], "depth": "through_all", "direction": "positive"},
+    {"id": "screw_nw", "type": "cylinder", "name": "Fastener Head NW", "operation": "new_body", "appearance": "silver_metal", "diameter": "5.8 mm", "height": "1.1 mm", "center": ["-fastener_x", "fastener_y", "case_height + lid_thickness - 0.1 mm"]},
+    {"id": "screw_ne", "type": "cylinder", "name": "Fastener Head NE", "operation": "new_body", "appearance": "silver_metal", "diameter": "5.8 mm", "height": "1.1 mm", "center": ["fastener_x", "fastener_y", "case_height + lid_thickness - 0.1 mm"]},
+    {"id": "screw_se", "type": "cylinder", "name": "Fastener Head SE", "operation": "new_body", "appearance": "silver_metal", "diameter": "5.8 mm", "height": "1.1 mm", "center": ["fastener_x", "-fastener_y", "case_height + lid_thickness - 0.1 mm"]},
+    {"id": "screw_sw", "type": "cylinder", "name": "Fastener Head SW", "operation": "new_body", "appearance": "silver_metal", "diameter": "5.8 mm", "height": "1.1 mm", "center": ["-fastener_x", "-fastener_y", "case_height + lid_thickness - 0.1 mm"]},
+    {"id": "window_bezel", "type": "sketch_extrude", "name": "Optical Window Bezel", "operation": "new_body", "appearance": "silver_metal", "plane": "xy", "offset": "case_height + lid_thickness", "profile": {"shape": "annulus", "center": ["window_x", "0 mm"], "outer_diameter": "window_outer", "inner_diameter": "window_inner"}, "distance": "1.2 mm"},
+    {"id": "window_bezel_roundover", "type": "edge_fillet", "name": "Window Bezel Highlight", "target_body": "Optical Window Bezel", "radius": "0.18 mm", "selection": "top_perimeter"},
+    {"id": "window_glass", "type": "cylinder", "name": "Optical Window Glass", "operation": "new_body", "appearance": "black_glass", "diameter": "window_inner - 0.6 mm", "height": "0.65 mm", "center": ["window_x", "0 mm", "case_height + lid_thickness + 0.25 mm"]},
+    {"id": "status_led", "type": "cylinder", "name": "Status Indicator", "operation": "new_body", "appearance": "flash_white", "diameter": "4 mm", "height": "1.0 mm", "center": ["-20 mm", "10 mm", "case_height + lid_thickness"]},
+    {"id": "button_trim", "type": "sketch_extrude", "name": "Service Button Trim", "operation": "new_body", "appearance": "silver_metal", "plane": "xy", "offset": "case_height + lid_thickness", "profile": {"shape": "annulus", "center": ["-20 mm", "-10 mm"], "outer_diameter": "9 mm", "inner_diameter": "7.2 mm"}, "distance": "0.9 mm"},
+    {"id": "button_cap", "type": "cylinder", "name": "Service Button Cap", "operation": "new_body", "appearance": "black", "diameter": "6.8 mm", "height": "1.8 mm", "center": ["-20 mm", "-10 mm", "case_height + lid_thickness + 0.15 mm"]},
+    {"id": "lid_vents", "type": "hole_pattern", "name": "Lid Vent Pattern", "operation": "cut", "plane": "xy", "offset": "case_height", "diameter": "2.2 mm", "points": [["-33 mm", "6 mm"], ["-27 mm", "6 mm"], ["-33 mm", "0 mm"], ["-27 mm", "0 mm"], ["-33 mm", "-6 mm"], ["-27 mm", "-6 mm"]], "depth": "through_all", "direction": "positive"}
+  ],
+  "assumptions": [
+    "Original generic enclosure design; no product geometry or branding is reproduced.",
+    "Wall, floor, clearances, sealing, venting, fasteners, and materials are visual design values and require engineering verification.",
+    "Vertical vent holes demonstrate the current XY-only protocol and are not an ingress-protection claim."
+  ],
+  "source_analysis": {"kind": "original parametric example", "orientation": "lid faces +Z", "scale_reference": "explicit parameters"}
+}

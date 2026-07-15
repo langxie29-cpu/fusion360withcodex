@@ -1,0 +1,218 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:fusion-ai-modeler:schema:model-plan:1.0",
+  "title": "Fusion AI ModelPlan",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["version", "component_name", "units", "features"],
+  "properties": {
+    "version": {"const": "1.0"},
+    "component_name": {"type": "string", "minLength": 1, "maxLength": 80},
+    "units": {"enum": ["mm", "cm", "in"]},
+    "parameters": {
+      "type": "array",
+      "maxItems": 128,
+      "items": {"$ref": "#/$defs/parameter"}
+    },
+    "features": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 128,
+      "items": {
+        "oneOf": [
+          {"$ref": "#/$defs/box"},
+          {"$ref": "#/$defs/cylinder"},
+          {"$ref": "#/$defs/sketchExtrude"},
+          {"$ref": "#/$defs/holePattern"},
+          {"$ref": "#/$defs/edgeFillet"}
+        ]
+      }
+    },
+    "assumptions": {
+      "type": "array",
+      "maxItems": 64,
+      "items": {"type": "string", "maxLength": 400}
+    },
+    "source_analysis": {"type": "object"}
+  },
+  "$defs": {
+    "expression": {"type": "string", "minLength": 1, "maxLength": 128},
+    "point2": {
+      "type": "array",
+      "prefixItems": [{"$ref": "#/$defs/expression"}, {"$ref": "#/$defs/expression"}],
+      "items": false,
+      "minItems": 2,
+      "maxItems": 2
+    },
+    "point3": {
+      "type": "array",
+      "prefixItems": [
+        {"$ref": "#/$defs/expression"},
+        {"$ref": "#/$defs/expression"},
+        {"$ref": "#/$defs/expression"}
+      ],
+      "items": false,
+      "minItems": 3,
+      "maxItems": 3
+    },
+    "parameter": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["name", "expression", "unit"],
+      "properties": {
+        "name": {"type": "string", "pattern": "^[A-Za-z_][A-Za-z0-9_]*$", "maxLength": 64},
+        "expression": {"$ref": "#/$defs/expression"},
+        "unit": {"enum": ["mm", "cm", "in", "deg"]},
+        "comment": {"type": "string", "maxLength": 300}
+      }
+    },
+    "common": {
+      "type": "object",
+      "required": ["id", "type"],
+      "properties": {
+        "id": {"type": "string", "pattern": "^[A-Za-z_][A-Za-z0-9_-]*$", "maxLength": 64},
+        "name": {"type": "string", "maxLength": 100},
+        "operation": {"enum": ["new_body", "join", "cut", "intersect"]},
+        "appearance": {"enum": ["silver_aluminum", "silver_glass", "silver_metal", "black_glass", "black", "flash_white"]}
+      }
+    },
+    "box": {
+      "allOf": [
+        {"$ref": "#/$defs/common"},
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["id", "type", "width", "depth", "height"],
+          "properties": {
+            "id": true, "name": true, "operation": true, "appearance": true,
+            "type": {"const": "box"},
+            "width": {"$ref": "#/$defs/expression"},
+            "depth": {"$ref": "#/$defs/expression"},
+            "height": {"$ref": "#/$defs/expression"},
+            "origin": {"$ref": "#/$defs/point3"}
+          }
+        }
+      ]
+    },
+    "cylinder": {
+      "allOf": [
+        {"$ref": "#/$defs/common"},
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["id", "type", "diameter", "height"],
+          "properties": {
+            "id": true, "name": true, "operation": true, "appearance": true,
+            "type": {"const": "cylinder"},
+            "diameter": {"$ref": "#/$defs/expression"},
+            "height": {"$ref": "#/$defs/expression"},
+            "center": {"$ref": "#/$defs/point3"}
+          }
+        }
+      ]
+    },
+    "profile": {
+      "oneOf": [
+        {
+          "type": "object", "additionalProperties": false,
+          "required": ["shape", "origin", "width", "height"],
+          "properties": {
+            "shape": {"const": "rectangle"},
+            "origin": {"$ref": "#/$defs/point2"},
+            "width": {"$ref": "#/$defs/expression"},
+            "height": {"$ref": "#/$defs/expression"}
+          }
+        },
+        {
+          "type": "object", "additionalProperties": false,
+          "required": ["shape", "center", "diameter"],
+          "properties": {
+            "shape": {"const": "circle"},
+            "center": {"$ref": "#/$defs/point2"},
+            "diameter": {"$ref": "#/$defs/expression"}
+          }
+        },
+        {
+          "type": "object", "additionalProperties": false,
+          "required": ["shape", "points"],
+          "properties": {
+            "shape": {"const": "polyline"},
+            "points": {"type": "array", "minItems": 3, "maxItems": 256, "items": {"$ref": "#/$defs/point2"}}
+          }
+        },
+        {
+          "type": "object", "additionalProperties": false,
+          "required": ["shape", "center", "width", "height", "radius"],
+          "properties": {
+            "shape": {"const": "rounded_rectangle"},
+            "center": {"$ref": "#/$defs/point2"},
+            "width": {"$ref": "#/$defs/expression"},
+            "height": {"$ref": "#/$defs/expression"},
+            "radius": {"$ref": "#/$defs/expression"}
+          }
+        },
+        {
+          "type": "object", "additionalProperties": false,
+          "required": ["shape", "center", "outer_diameter", "inner_diameter"],
+          "properties": {
+            "shape": {"const": "annulus"},
+            "center": {"$ref": "#/$defs/point2"},
+            "outer_diameter": {"$ref": "#/$defs/expression"},
+            "inner_diameter": {"$ref": "#/$defs/expression"}
+          }
+        }
+      ]
+    },
+    "sketchExtrude": {
+      "allOf": [
+        {"$ref": "#/$defs/common"},
+        {
+          "type": "object", "additionalProperties": false,
+          "required": ["id", "type", "profile", "distance"],
+          "properties": {
+            "id": true, "name": true, "operation": true, "appearance": true,
+            "type": {"const": "sketch_extrude"},
+            "plane": {"const": "xy"},
+            "offset": {"$ref": "#/$defs/expression"},
+            "profile": {"$ref": "#/$defs/profile"},
+            "distance": {"$ref": "#/$defs/expression"},
+            "direction": {"enum": ["positive", "negative"]}
+          }
+        }
+      ]
+    },
+    "holePattern": {
+      "allOf": [
+        {"$ref": "#/$defs/common"},
+        {
+          "type": "object", "additionalProperties": false,
+          "required": ["id", "type", "diameter", "points", "depth"],
+          "properties": {
+            "id": true, "name": true, "appearance": true,
+            "type": {"const": "hole_pattern"},
+            "operation": {"const": "cut"},
+            "plane": {"const": "xy"},
+            "offset": {"$ref": "#/$defs/expression"},
+            "diameter": {"$ref": "#/$defs/expression"},
+            "points": {"type": "array", "minItems": 1, "maxItems": 256, "items": {"$ref": "#/$defs/point2"}},
+            "depth": {"$ref": "#/$defs/expression"},
+            "direction": {"enum": ["positive", "negative"]}
+          }
+        }
+      ]
+    },
+    "edgeFillet": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "type", "target_body", "radius", "selection"],
+      "properties": {
+        "id": {"type": "string", "pattern": "^[A-Za-z_][A-Za-z0-9_-]*$", "maxLength": 64},
+        "name": {"type": "string", "maxLength": 100},
+        "type": {"const": "edge_fillet"},
+        "target_body": {"type": "string", "minLength": 1, "maxLength": 100},
+        "radius": {"$ref": "#/$defs/expression"},
+        "selection": {"enum": ["top_perimeter", "bottom_perimeter", "top_and_bottom_perimeters", "all"]}
+      }
+    }
+  }
+}

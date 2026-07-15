@@ -1,0 +1,56 @@
+{
+  "catalog_version": "1.0",
+  "records": [
+    {
+      "id": "nema17-generic-interface",
+      "name": "NEMA 17 通用安装接口",
+      "aliases": ["nema17", "42mm stepper", "42步进电机", "17hs"],
+      "status": "generic_unverified",
+      "units": "mm",
+      "dimensions": {
+        "face_width_nominal": 42.3,
+        "mount_hole_pitch_nominal": 31.0,
+        "pilot_diameter_typical": 22.0,
+        "shaft_diameter_typical": 5.0,
+        "mount_thread_typical": "M3"
+      },
+      "variable_or_unknown": ["body_length", "shaft_length", "rear_shaft", "connector_envelope", "pilot_depth"],
+      "source_note": "族级候选尺寸，不代表任何具体制造商料号；建模前核对官方尺寸图。"
+    },
+    {
+      "id": "nema23-generic-interface",
+      "name": "NEMA 23 通用安装接口",
+      "aliases": ["nema23", "57mm stepper", "57步进电机"],
+      "status": "generic_unverified",
+      "units": "mm",
+      "dimensions": {
+        "face_width_nominal": 56.4,
+        "mount_hole_pitch_nominal": 47.14,
+        "pilot_diameter_typical": 38.1,
+        "shaft_diameter_typical": 6.35
+      },
+      "variable_or_unknown": ["mount_hole_or_thread", "body_length", "shaft_length", "connector_envelope", "pilot_depth"],
+      "source_note": "族级候选尺寸，不代表任何具体制造商料号；建模前核对官方尺寸图。"
+    },
+    {
+      "id": "bearing-608-nominal",
+      "name": "608 轴承名义包络",
+      "aliases": ["608", "608zz", "608-2rs", "8x22x7 bearing", "608轴承"],
+      "status": "standard_nominal",
+      "units": "mm",
+      "dimensions": {"bore": 8.0, "outside_diameter": 22.0, "width": 7.0},
+      "variable_or_unknown": ["fit_tolerance", "seal_or_shield_envelope", "edge_chamfer"],
+      "source_note": "名义包络用于参数初始化；配合、公差与倒角必须按供应商数据和制造工艺确定。"
+    },
+    {
+      "id": "bearing-625-nominal",
+      "name": "625 轴承名义包络",
+      "aliases": ["625", "625zz", "625-2rs", "5x16x5 bearing", "625轴承"],
+      "status": "standard_nominal",
+      "units": "mm",
+      "dimensions": {"bore": 5.0, "outside_diameter": 16.0, "width": 5.0},
+      "variable_or_unknown": ["fit_tolerance", "seal_or_shield_envelope", "edge_chamfer"],
+      "source_note": "名义包络用于参数初始化；配合、公差与倒角必须按供应商数据和制造工艺确定。"
+    }
+  ]
+}

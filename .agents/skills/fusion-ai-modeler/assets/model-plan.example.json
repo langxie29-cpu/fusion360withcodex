@@ -1,0 +1,58 @@
+{
+  "version": "1.0",
+  "component_name": "NEMA17_Motor_Plate",
+  "units": "mm",
+  "parameters": [
+    {"name": "plate_width", "expression": "60 mm", "unit": "mm", "comment": "安装板宽度"},
+    {"name": "plate_depth", "expression": "60 mm", "unit": "mm", "comment": "安装板深度"},
+    {"name": "plate_thickness", "expression": "4 mm", "unit": "mm", "comment": "板厚"},
+    {"name": "motor_pitch", "expression": "31 mm", "unit": "mm", "comment": "通用 NEMA17 孔距，使用前核对具体电机"},
+    {"name": "mount_hole_diameter", "expression": "3.4 mm", "unit": "mm", "comment": "M3 打印件间隙孔示例，需按工艺确认"}
+  ],
+  "features": [
+    {
+      "id": "base_plate",
+      "type": "box",
+      "name": "安装板",
+      "operation": "new_body",
+      "origin": ["-plate_width / 2", "-plate_depth / 2", "0 mm"],
+      "width": "plate_width",
+      "depth": "plate_depth",
+      "height": "plate_thickness"
+    },
+    {
+      "id": "shaft_clearance",
+      "type": "hole_pattern",
+      "name": "轴孔",
+      "operation": "cut",
+      "offset": "0 mm",
+      "diameter": "24 mm",
+      "points": [["0 mm", "0 mm"]],
+      "depth": "through_all",
+      "direction": "positive"
+    },
+    {
+      "id": "motor_mount_holes",
+      "type": "hole_pattern",
+      "name": "电机安装孔",
+      "operation": "cut",
+      "offset": "0 mm",
+      "diameter": "mount_hole_diameter",
+      "points": [
+        ["-motor_pitch / 2", "-motor_pitch / 2"],
+        ["motor_pitch / 2", "-motor_pitch / 2"],
+        ["motor_pitch / 2", "motor_pitch / 2"],
+        ["-motor_pitch / 2", "motor_pitch / 2"]
+      ],
+      "depth": "through_all",
+      "direction": "positive"
+    }
+  ],
+  "assumptions": [
+    "NEMA17 孔距采用通用候选值，最终模型必须按具体电机数据表复核。"
+  ],
+  "source_analysis": {
+    "kind": "example",
+    "scale_reference": "explicit dimensions"
+  }
+}

@@ -1,0 +1,47 @@
+{
+  "version": "1.0",
+  "component_name": "Generic_Robotics_Control_Panel",
+  "units": "mm",
+  "parameters": [
+    {"name": "panel_width", "expression": "120 mm", "unit": "mm", "comment": "Overall panel width"},
+    {"name": "panel_height", "expression": "80 mm", "unit": "mm", "comment": "Overall panel height"},
+    {"name": "panel_thickness", "expression": "4 mm", "unit": "mm", "comment": "Faceplate thickness"},
+    {"name": "panel_radius", "expression": "10 mm", "unit": "mm", "comment": "Tangent plan-view radius"},
+    {"name": "display_x", "expression": "-16 mm", "unit": "mm", "comment": "Display center X"},
+    {"name": "display_y", "expression": "11 mm", "unit": "mm", "comment": "Display center Y"},
+    {"name": "display_width", "expression": "54 mm", "unit": "mm", "comment": "Display glass width"},
+    {"name": "display_height", "expression": "29 mm", "unit": "mm", "comment": "Display glass height"},
+    {"name": "mount_x", "expression": "52 mm", "unit": "mm", "comment": "Mounting-hole X coordinate"},
+    {"name": "mount_y", "expression": "32 mm", "unit": "mm", "comment": "Mounting-hole Y coordinate"},
+    {"name": "mount_hole", "expression": "4.5 mm", "unit": "mm", "comment": "Generic mounting clearance"},
+    {"name": "knob_x", "expression": "31 mm", "unit": "mm", "comment": "Rotary control X"},
+    {"name": "knob_y", "expression": "16 mm", "unit": "mm", "comment": "Rotary control Y"}
+  ],
+  "features": [
+    {"id": "faceplate", "type": "sketch_extrude", "name": "Control Faceplate", "operation": "new_body", "appearance": "silver_aluminum", "plane": "xy", "offset": "0 mm", "profile": {"shape": "rounded_rectangle", "center": ["0 mm", "0 mm"], "width": "panel_width", "height": "panel_height", "radius": "panel_radius"}, "distance": "panel_thickness"},
+    {"id": "faceplate_roundover", "type": "edge_fillet", "name": "Faceplate Perimeter Roundover", "target_body": "Control Faceplate", "radius": "1.0 mm", "selection": "top_and_bottom_perimeters"},
+    {"id": "display_cutout", "type": "sketch_extrude", "name": "Display Cutout", "operation": "cut", "plane": "xy", "offset": "0 mm", "profile": {"shape": "rounded_rectangle", "center": ["display_x", "display_y"], "width": "display_width + 2 mm", "height": "display_height + 2 mm", "radius": "4.2 mm"}, "distance": "panel_thickness"},
+    {"id": "display_glass", "type": "sketch_extrude", "name": "Display Glass", "operation": "new_body", "appearance": "black_glass", "plane": "xy", "offset": "panel_thickness - 0.35 mm", "profile": {"shape": "rounded_rectangle", "center": ["display_x", "display_y"], "width": "display_width", "height": "display_height", "radius": "3.6 mm"}, "distance": "0.8 mm"},
+    {"id": "display_roundover", "type": "edge_fillet", "name": "Display Glass Edge", "target_body": "Display Glass", "radius": "0.25 mm", "selection": "top_perimeter"},
+    {"id": "panel_mounts", "type": "hole_pattern", "name": "Panel Mounting Holes", "operation": "cut", "plane": "xy", "offset": "0 mm", "diameter": "mount_hole", "points": [["-mount_x", "-mount_y"], ["mount_x", "-mount_y"], ["mount_x", "mount_y"], ["-mount_x", "mount_y"]], "depth": "through_all", "direction": "positive"},
+    {"id": "knob_trim", "type": "sketch_extrude", "name": "Rotary Control Trim", "operation": "new_body", "appearance": "silver_metal", "plane": "xy", "offset": "panel_thickness", "profile": {"shape": "annulus", "center": ["knob_x", "knob_y"], "outer_diameter": "22 mm", "inner_diameter": "18 mm"}, "distance": "1.5 mm"},
+    {"id": "knob_trim_roundover", "type": "edge_fillet", "name": "Rotary Trim Highlight", "target_body": "Rotary Control Trim", "radius": "0.2 mm", "selection": "top_perimeter"},
+    {"id": "knob", "type": "cylinder", "name": "Rotary Control Knob", "operation": "new_body", "appearance": "black", "diameter": "17 mm", "height": "8 mm", "center": ["knob_x", "knob_y", "panel_thickness + 0.5 mm"]},
+    {"id": "knob_roundover", "type": "edge_fillet", "name": "Knob Top Roundover", "target_body": "Rotary Control Knob", "radius": "1.2 mm", "selection": "top_perimeter"},
+    {"id": "push_trim", "type": "sketch_extrude", "name": "Push Control Trim", "operation": "new_body", "appearance": "silver_metal", "plane": "xy", "offset": "panel_thickness", "profile": {"shape": "annulus", "center": ["31 mm", "-18 mm"], "outer_diameter": "18 mm", "inner_diameter": "14 mm"}, "distance": "1.2 mm"},
+    {"id": "push_cap", "type": "cylinder", "name": "Push Control Cap", "operation": "new_body", "appearance": "black", "diameter": "13.5 mm", "height": "5.5 mm", "center": ["31 mm", "-18 mm", "panel_thickness + 0.4 mm"]},
+    {"id": "indicator_1", "type": "cylinder", "name": "Indicator One", "operation": "new_body", "appearance": "flash_white", "diameter": "4 mm", "height": "1.1 mm", "center": ["-38 mm", "-23 mm", "panel_thickness"]},
+    {"id": "indicator_2", "type": "cylinder", "name": "Indicator Two", "operation": "new_body", "appearance": "flash_white", "diameter": "4 mm", "height": "1.1 mm", "center": ["-25 mm", "-23 mm", "panel_thickness"]},
+    {"id": "indicator_3", "type": "cylinder", "name": "Indicator Three", "operation": "new_body", "appearance": "flash_white", "diameter": "4 mm", "height": "1.1 mm", "center": ["-12 mm", "-23 mm", "panel_thickness"]},
+    {"id": "standoff_nw", "type": "sketch_extrude", "name": "Rear Standoff NW", "operation": "new_body", "appearance": "silver_metal", "plane": "xy", "offset": "-8 mm", "profile": {"shape": "annulus", "center": ["-mount_x", "mount_y"], "outer_diameter": "9 mm", "inner_diameter": "mount_hole"}, "distance": "8 mm"},
+    {"id": "standoff_ne", "type": "sketch_extrude", "name": "Rear Standoff NE", "operation": "new_body", "appearance": "silver_metal", "plane": "xy", "offset": "-8 mm", "profile": {"shape": "annulus", "center": ["mount_x", "mount_y"], "outer_diameter": "9 mm", "inner_diameter": "mount_hole"}, "distance": "8 mm"},
+    {"id": "standoff_se", "type": "sketch_extrude", "name": "Rear Standoff SE", "operation": "new_body", "appearance": "silver_metal", "plane": "xy", "offset": "-8 mm", "profile": {"shape": "annulus", "center": ["mount_x", "-mount_y"], "outer_diameter": "9 mm", "inner_diameter": "mount_hole"}, "distance": "8 mm"},
+    {"id": "standoff_sw", "type": "sketch_extrude", "name": "Rear Standoff SW", "operation": "new_body", "appearance": "silver_metal", "plane": "xy", "offset": "-8 mm", "profile": {"shape": "annulus", "center": ["-mount_x", "-mount_y"], "outer_diameter": "9 mm", "inner_diameter": "mount_hole"}, "distance": "8 mm"}
+  ],
+  "assumptions": [
+    "Original generic control-panel layout with no copied product geometry, iconography, or branding.",
+    "Display, controls, indicators, mounting clearances, materials, and standoff dimensions are configurable visual examples.",
+    "Electrical safety, ergonomics, ingress protection, and manufacturing tolerances require project-specific engineering."
+  ],
+  "source_analysis": {"kind": "original parametric example", "orientation": "operator face toward +Z", "scale_reference": "explicit parameters"}
+}
