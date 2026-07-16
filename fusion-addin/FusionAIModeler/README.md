@@ -15,6 +15,10 @@ The add-in exposes no arbitrary Python or Fusion script execution. Geometry writ
 the ModelPlan validator, receive an expiring one-time plan ID, and then be applied through the
 typed executor on Fusion's main thread.
 
+ModelPlan 1.1 keeps 1.0 plans compatible and adds multi-plane sketches, slots, compound holes,
+chamfers, rectangular/circular patterns, post-build result checks, and a bounded
+`mecanum_drive` generator for a wheel, rollers, coupler, geared motor, bracket, and hardware.
+
 Browser-originated writes are blocked with loopback Host/Origin checks and an
 `application/json` requirement. See the repository `SECURITY.md` for the complete threat model.
 

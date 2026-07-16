@@ -19,6 +19,7 @@ PUBLIC_EXAMPLES = [
     ROOT / "examples" / "generic-sensor-enclosure.modelplan.json",
     ROOT / "examples" / "robotics-control-panel.modelplan.json",
     ROOT / "examples" / "configurable-stepper-mount.modelplan.json",
+    ROOT / "examples" / "generic-mecanum-drive-module.modelplan.json",
 ]
 
 
@@ -52,6 +53,9 @@ def main() -> int:
         ROOT / ".gitignore",
         ROOT / ".github" / "workflows" / "tests.yml",
         ROOT / ".codex" / "config.toml",
+        ROOT / "scripts" / "install_fusion_addin.ps1",
+        ROOT / "scripts" / "invoke_model_plan.ps1",
+        ROOT / "scripts" / "update_fusion_addin.ps1",
         ROOT / "examples" / "README.md",
         *PUBLIC_EXAMPLES,
         SKILL / "SKILL.md",
@@ -68,7 +72,7 @@ def main() -> int:
         fail("The skill and add-in ModelPlan validators have drifted")
 
     schema = read_json(SKILL / "assets" / "model-plan.schema.json")
-    if schema.get("$id") != "urn:fusion-ai-modeler:schema:model-plan:1.0":
+    if schema.get("$id") != "urn:fusion-ai-modeler:schema:model-plan:1.1":
         fail("ModelPlan schema has an unexpected $id")
 
     example_path = SKILL / "assets" / "model-plan.example.json"
@@ -90,6 +94,8 @@ def main() -> int:
     manifest = read_json(ROOT / "fusion-addin" / "FusionAIModeler" / "FusionAIModeler.manifest")
     if not re.fullmatch(r"\d+\.\d+\.\d+", str(manifest.get("version", ""))):
         fail("Fusion manifest version is not semantic x.y.z")
+    if tuple(int(part) for part in manifest["version"].split(".")) < (0, 2, 0):
+        fail("Fusion manifest must advertise the ModelPlan 1.1 release")
     if manifest.get("runOnStartup") is not True:
         fail("Fusion manifest must enable runOnStartup")
 

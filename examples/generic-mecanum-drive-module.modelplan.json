@@ -1,0 +1,122 @@
+{
+  "version": "1.1",
+  "component_name": "Generic_Mecanum_Drive_Module",
+  "units": "mm",
+  "features": [
+    {
+      "id": "drive_module",
+      "type": "mecanum_drive",
+      "name": "Drive_Module_A_Left",
+      "center": ["0 mm", "0 mm", "48.5 mm"],
+      "side": "left",
+      "handedness": "A",
+      "wheel": {
+        "diameter": "97 mm",
+        "width": "44.9 mm",
+        "roller_count": 9,
+        "roller_diameter": "18 mm",
+        "roller_end_diameter": "13 mm",
+        "roller_length": "36 mm",
+        "roller_angle": "45 deg",
+        "roller_axle_diameter": "3 mm",
+        "roller_axle_overhang": "12 mm",
+        "hub_diameter": "52 mm",
+        "hub_width": "38.9 mm",
+        "flange_diameter": "76 mm",
+        "flange_thickness": "3 mm",
+        "hex_socket_depth": "6 mm",
+        "spoke_inner_diameter": "54 mm",
+        "spoke_width": "6 mm",
+        "spoke_thickness": "3 mm"
+      },
+      "coupler": {
+        "hex_af": "11.9 mm",
+        "hex_length": "6 mm",
+        "barrel_diameter": "11.4 mm",
+        "barrel_length": "12 mm",
+        "bore_diameter": "6 mm",
+        "set_screw_diameter": "4 mm",
+        "retention_thread_diameter": "4 mm",
+        "shaft_engagement": "9 mm"
+      },
+      "motor": {
+        "shaft_diameter": "6 mm",
+        "shaft_flat": "5.5 mm",
+        "shaft_length": "15.5 mm",
+        "boss_diameter": "12 mm",
+        "boss_length": "6 mm",
+        "gearbox_diameter": "37 mm",
+        "gearbox_length": "24 mm",
+        "can_diameter": "32 mm",
+        "can_length": "22 mm",
+        "encoder_diameter": "37 mm",
+        "encoder_length": "11.75 mm",
+        "mount_pcd": "31 mm",
+        "mount_hole_count": 6,
+        "mount_thread_diameter": "3 mm",
+        "mount_thread_depth": "3.5 mm"
+      },
+      "bracket": {
+        "plate_thickness": "1.5 mm",
+        "base_length": "40 mm",
+        "width": "40 mm",
+        "height": "47 mm",
+        "axis_height": "20 mm",
+        "boss_clearance": "14 mm",
+        "keyhole_head_diameter": "6.3 mm",
+        "keyhole_slot_width": "3.2 mm",
+        "keyhole_slot_length": "4 mm",
+        "base_hole_diameter": "3.5 mm",
+        "base_hole_near": "8 mm",
+        "base_hole_far": "32 mm",
+        "base_hole_pitch_y": "30 mm"
+      },
+      "hardware": {
+        "motor_bolt_count": 3,
+        "motor_bolt_diameter": "3 mm",
+        "motor_bolt_head_diameter": "5.5 mm",
+        "motor_bolt_head_thickness": "2 mm",
+        "base_bolt_diameter": "3 mm",
+        "base_bolt_length": "12 mm",
+        "base_bolt_head_diameter": "5.5 mm",
+        "base_bolt_head_thickness": "2 mm",
+        "wheel_screw_diameter": "4 mm",
+        "wheel_screw_length": "45 mm",
+        "wheel_screw_head_diameter": "7.5 mm",
+        "wheel_screw_head_thickness": "3 mm"
+      },
+      "appearances": {
+        "hub": "black",
+        "roller": "black",
+        "axle": "silver_metal",
+        "coupler": "silver_metal",
+        "motor": "silver_aluminum",
+        "encoder": "black",
+        "bracket": "silver_metal",
+        "hardware": "silver_metal"
+      }
+    }
+  ],
+  "result_checks": {
+    "body_count": 65,
+    "required_bodies": [
+      "Drive_Module_A_Left_Wheel_Hub",
+      "Drive_Module_A_Left_Mecanum_Roller_A_01",
+      "Drive_Module_A_Left_Coupler_Barrel_D6",
+      "Drive_Module_A_Left_Motor_Gearbox_D37_L24",
+      "Drive_Module_A_Left_Bracket_Base_Plate"
+    ]
+  },
+  "assumptions": [
+    "This is a brand-neutral integration example, not a manufacturing specification.",
+    "Wheel envelope and nine-roller arrangement are representative; verify the purchased wheel, roller taper, axle, hub, flange, and socket dimensions.",
+    "Motor, coupler, bracket, and fastener values are editable interface candidates and must be checked against the exact supplied parts.",
+    "Handedness A/B describes roller-axis orientation. For a four-wheel chassis, verify the intended X pattern visually before manufacture.",
+    "The mecanum_drive result is reproducible and direct-editable inside a named BaseFeature; edit the ModelPlan and regenerate to change arbitrary-axis geometry."
+  ],
+  "source_analysis": {
+    "orientation": "X is the wheel and motor axis, Y is fore-aft, Z is up; wheel contact is at Z=0.",
+    "design_intent": "Reusable wheel, coupler, geared motor, angle bracket, and fastener assembly example.",
+    "verification": "Confirm every purchased-part interface, fit, clearance, load, material, and fastener engagement before fabrication."
+  }
+}

@@ -22,7 +22,17 @@ def handler() -> dict:
         "active_document": document.name if document else None,
         "active_product_is_design": bool(design),
         "server": "http://127.0.0.1:9100/",
-        "supported_model_plan": "1.0",
+        "supported_model_plan": "1.1",
+        "supported_model_plan_versions": ["1.0", "1.1"],
+        "modeling_capabilities": [
+            "uploaded-sketch-to-model-plan",
+            "multi-plane-sketches",
+            "slots-and-compound-holes",
+            "fillets-and-chamfers",
+            "rectangular-and-circular-patterns",
+            "mecanum-drive-assemblies",
+            "post-build-result-checks",
+        ],
     }
     return {
         "content": [{"type": "text", "text": json.dumps(payload, ensure_ascii=False, indent=2)}],

@@ -1,12 +1,12 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "urn:fusion-ai-modeler:schema:model-plan:1.0",
+  "$id": "urn:fusion-ai-modeler:schema:model-plan:1.1",
   "title": "Fusion AI ModelPlan",
   "type": "object",
   "additionalProperties": false,
   "required": ["version", "component_name", "units", "features"],
   "properties": {
-    "version": {"const": "1.0"},
+    "version": {"enum": ["1.0", "1.1"]},
     "component_name": {"type": "string", "minLength": 1, "maxLength": 80},
     "units": {"enum": ["mm", "cm", "in"]},
     "parameters": {
@@ -18,23 +18,56 @@
       "type": "array",
       "minItems": 1,
       "maxItems": 128,
-      "items": {
-        "oneOf": [
-          {"$ref": "#/$defs/box"},
-          {"$ref": "#/$defs/cylinder"},
-          {"$ref": "#/$defs/sketchExtrude"},
-          {"$ref": "#/$defs/holePattern"},
-          {"$ref": "#/$defs/edgeFillet"}
-        ]
-      }
+      "items": true
     },
     "assumptions": {
       "type": "array",
       "maxItems": 64,
       "items": {"type": "string", "maxLength": 400}
     },
-    "source_analysis": {"type": "object"}
+    "source_analysis": {"type": "object"},
+    "result_checks": {"$ref": "#/$defs/resultChecks"}
   },
+  "allOf": [
+    {
+      "if": {"properties": {"version": {"const": "1.0"}}, "required": ["version"]},
+      "then": {
+        "not": {"required": ["result_checks"]},
+        "properties": {
+          "features": {
+            "items": {
+              "oneOf": [
+                {"$ref": "#/$defs/box"},
+                {"$ref": "#/$defs/cylinder"},
+                {"$ref": "#/$defs/sketchExtrude"},
+                {"$ref": "#/$defs/holePattern"},
+                {"$ref": "#/$defs/edgeFillet"}
+              ]
+            }
+          }
+        }
+      },
+      "else": {
+        "properties": {
+          "features": {
+            "items": {
+              "oneOf": [
+                {"$ref": "#/$defs/box"},
+                {"$ref": "#/$defs/cylinderV11"},
+                {"$ref": "#/$defs/sketchExtrudeV11"},
+                {"$ref": "#/$defs/holePatternV11"},
+                {"$ref": "#/$defs/mecanumDrive"},
+                {"$ref": "#/$defs/edgeFillet"},
+                {"$ref": "#/$defs/edgeChamfer"},
+                {"$ref": "#/$defs/rectangularPattern"},
+                {"$ref": "#/$defs/circularPattern"}
+              ]
+            }
+          }
+        }
+      }
+    }
+  ],
   "$defs": {
     "expression": {"type": "string", "minLength": 1, "maxLength": 128},
     "point2": {
@@ -212,6 +245,287 @@
         "target_body": {"type": "string", "minLength": 1, "maxLength": 100},
         "radius": {"$ref": "#/$defs/expression"},
         "selection": {"enum": ["top_perimeter", "bottom_perimeter", "top_and_bottom_perimeters", "all"]}
+      }
+    },
+    "cylinderV11": {
+      "allOf": [
+        {"$ref": "#/$defs/common"},
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["id", "type", "diameter", "height"],
+          "properties": {
+            "id": true, "name": true, "operation": true, "appearance": true,
+            "type": {"const": "cylinder"},
+            "diameter": {"$ref": "#/$defs/expression"},
+            "height": {"$ref": "#/$defs/expression"},
+            "center": {"$ref": "#/$defs/point3"},
+            "axis": {"enum": ["x", "y", "z"]}
+          }
+        }
+      ]
+    },
+    "profileV11": {
+      "oneOf": [
+        {
+          "type": "object", "additionalProperties": false,
+          "required": ["shape", "origin", "width", "height"],
+          "properties": {
+            "shape": {"const": "rectangle"},
+            "origin": {"$ref": "#/$defs/point2"},
+            "width": {"$ref": "#/$defs/expression"},
+            "height": {"$ref": "#/$defs/expression"}
+          }
+        },
+        {
+          "type": "object", "additionalProperties": false,
+          "required": ["shape", "center", "diameter"],
+          "properties": {
+            "shape": {"const": "circle"},
+            "center": {"$ref": "#/$defs/point2"},
+            "diameter": {"$ref": "#/$defs/expression"}
+          }
+        },
+        {
+          "type": "object", "additionalProperties": false,
+          "required": ["shape", "points"],
+          "properties": {
+            "shape": {"const": "polyline"},
+            "points": {"type": "array", "minItems": 3, "maxItems": 256, "items": {"$ref": "#/$defs/point2"}}
+          }
+        },
+        {
+          "type": "object", "additionalProperties": false,
+          "required": ["shape", "center", "width", "height", "radius"],
+          "properties": {
+            "shape": {"const": "rounded_rectangle"},
+            "center": {"$ref": "#/$defs/point2"},
+            "width": {"$ref": "#/$defs/expression"},
+            "height": {"$ref": "#/$defs/expression"},
+            "radius": {"$ref": "#/$defs/expression"}
+          }
+        },
+        {
+          "type": "object", "additionalProperties": false,
+          "required": ["shape", "center", "outer_diameter", "inner_diameter"],
+          "properties": {
+            "shape": {"const": "annulus"},
+            "center": {"$ref": "#/$defs/point2"},
+            "outer_diameter": {"$ref": "#/$defs/expression"},
+            "inner_diameter": {"$ref": "#/$defs/expression"}
+          }
+        },
+        {
+          "type": "object", "additionalProperties": false,
+          "required": ["shape", "center", "length", "width"],
+          "properties": {
+            "shape": {"const": "slot"},
+            "center": {"$ref": "#/$defs/point2"},
+            "length": {"$ref": "#/$defs/expression"},
+            "width": {"$ref": "#/$defs/expression"},
+            "angle": {"$ref": "#/$defs/expression"}
+          }
+        }
+      ]
+    },
+    "sketchExtrudeV11": {
+      "allOf": [
+        {"$ref": "#/$defs/common"},
+        {
+          "type": "object", "additionalProperties": false,
+          "required": ["id", "type", "profile", "distance"],
+          "properties": {
+            "id": true, "name": true, "operation": true, "appearance": true,
+            "type": {"const": "sketch_extrude"},
+            "plane": {"enum": ["xy", "xz", "yz"]},
+            "offset": {"$ref": "#/$defs/expression"},
+            "profile": {"$ref": "#/$defs/profileV11"},
+            "distance": {"$ref": "#/$defs/expression"},
+            "direction": {"enum": ["positive", "negative"]}
+          }
+        }
+      ]
+    },
+    "holePatternV11": {
+      "allOf": [
+        {"$ref": "#/$defs/common"},
+        {
+          "type": "object", "additionalProperties": false,
+          "required": ["id", "type", "diameter", "points", "depth"],
+          "properties": {
+            "id": true, "name": true, "appearance": true,
+            "type": {"const": "hole_pattern"},
+            "operation": {"const": "cut"},
+            "plane": {"enum": ["xy", "xz", "yz"]},
+            "offset": {"$ref": "#/$defs/expression"},
+            "diameter": {"$ref": "#/$defs/expression"},
+            "points": {"type": "array", "minItems": 1, "maxItems": 256, "items": {"$ref": "#/$defs/point2"}},
+            "depth": {"$ref": "#/$defs/expression"},
+            "direction": {"enum": ["positive", "negative"]},
+            "style": {"enum": ["simple", "counterbore", "countersink"]},
+            "counterbore_diameter": {"$ref": "#/$defs/expression"},
+            "counterbore_depth": {"$ref": "#/$defs/expression"},
+            "countersink_diameter": {"$ref": "#/$defs/expression"},
+            "countersink_angle": {"$ref": "#/$defs/expression"}
+          }
+        },
+        {
+          "oneOf": [
+            {
+              "properties": {"style": {"const": "simple"}},
+              "not": {"anyOf": [
+                {"required": ["counterbore_diameter"]}, {"required": ["counterbore_depth"]},
+                {"required": ["countersink_diameter"]}, {"required": ["countersink_angle"]}
+              ]}
+            },
+            {
+              "required": ["style", "counterbore_diameter", "counterbore_depth"],
+              "properties": {"style": {"const": "counterbore"}},
+              "not": {"anyOf": [{"required": ["countersink_diameter"]}, {"required": ["countersink_angle"]}]}
+            },
+            {
+              "required": ["style", "countersink_diameter", "countersink_angle"],
+              "properties": {"style": {"const": "countersink"}},
+              "not": {"anyOf": [{"required": ["counterbore_diameter"]}, {"required": ["counterbore_depth"]}]}
+            }
+          ]
+        }
+      ]
+    },
+    "mecanumWheel": {
+      "type": "object", "additionalProperties": false,
+      "required": [
+        "diameter", "width", "roller_count", "roller_diameter", "roller_end_diameter", "roller_length", "roller_angle",
+        "roller_axle_diameter", "roller_axle_overhang", "hub_diameter", "hub_width", "flange_diameter", "flange_thickness",
+        "hex_socket_depth", "spoke_inner_diameter", "spoke_width", "spoke_thickness"
+      ],
+      "properties": {"roller_count": {"type": "integer", "minimum": 3, "maximum": 32}},
+      "patternProperties": {
+        "^(diameter|width|roller_diameter|roller_end_diameter|roller_length|roller_angle|roller_axle_diameter|roller_axle_overhang|hub_diameter|hub_width|flange_diameter|flange_thickness|hex_socket_depth|spoke_inner_diameter|spoke_width|spoke_thickness)$": {"$ref": "#/$defs/expression"}
+      }
+    },
+    "mecanumCoupler": {
+      "type": "object", "additionalProperties": false,
+      "required": ["hex_af", "hex_length", "barrel_diameter", "barrel_length", "bore_diameter", "set_screw_diameter", "retention_thread_diameter", "shaft_engagement"],
+      "patternProperties": {
+        "^(hex_af|hex_length|barrel_diameter|barrel_length|bore_diameter|set_screw_diameter|retention_thread_diameter|shaft_engagement)$": {"$ref": "#/$defs/expression"}
+      }
+    },
+    "mecanumMotor": {
+      "type": "object", "additionalProperties": false,
+      "required": [
+        "shaft_diameter", "shaft_flat", "shaft_length", "boss_diameter", "boss_length", "gearbox_diameter", "gearbox_length",
+        "can_diameter", "can_length", "encoder_diameter", "encoder_length", "mount_pcd", "mount_hole_count", "mount_thread_diameter", "mount_thread_depth"
+      ],
+      "properties": {"mount_hole_count": {"type": "integer", "minimum": 3, "maximum": 12}},
+      "patternProperties": {
+        "^(shaft_diameter|shaft_flat|shaft_length|boss_diameter|boss_length|gearbox_diameter|gearbox_length|can_diameter|can_length|encoder_diameter|encoder_length|mount_pcd|mount_thread_diameter|mount_thread_depth)$": {"$ref": "#/$defs/expression"}
+      }
+    },
+    "mecanumBracket": {
+      "type": "object", "additionalProperties": false,
+      "required": [
+        "plate_thickness", "base_length", "width", "height", "axis_height", "boss_clearance", "keyhole_head_diameter",
+        "keyhole_slot_width", "keyhole_slot_length", "base_hole_diameter", "base_hole_near", "base_hole_far", "base_hole_pitch_y"
+      ],
+      "patternProperties": {
+        "^(plate_thickness|base_length|width|height|axis_height|boss_clearance|keyhole_head_diameter|keyhole_slot_width|keyhole_slot_length|base_hole_diameter|base_hole_near|base_hole_far|base_hole_pitch_y)$": {"$ref": "#/$defs/expression"}
+      }
+    },
+    "mecanumHardware": {
+      "type": "object", "additionalProperties": false,
+      "required": [
+        "motor_bolt_count", "motor_bolt_diameter", "motor_bolt_head_diameter", "motor_bolt_head_thickness", "base_bolt_diameter",
+        "base_bolt_length", "base_bolt_head_diameter", "base_bolt_head_thickness", "wheel_screw_diameter", "wheel_screw_length",
+        "wheel_screw_head_diameter", "wheel_screw_head_thickness"
+      ],
+      "properties": {"motor_bolt_count": {"type": "integer", "minimum": 1, "maximum": 12}},
+      "patternProperties": {
+        "^(motor_bolt_diameter|motor_bolt_head_diameter|motor_bolt_head_thickness|base_bolt_diameter|base_bolt_length|base_bolt_head_diameter|base_bolt_head_thickness|wheel_screw_diameter|wheel_screw_length|wheel_screw_head_diameter|wheel_screw_head_thickness)$": {"$ref": "#/$defs/expression"}
+      }
+    },
+    "mecanumAppearances": {
+      "type": "object", "additionalProperties": false,
+      "required": ["hub", "roller", "axle", "coupler", "motor", "encoder", "bracket", "hardware"],
+      "patternProperties": {
+        "^(hub|roller|axle|coupler|motor|encoder|bracket|hardware)$": {"enum": ["silver_aluminum", "silver_glass", "silver_metal", "black_glass", "black", "flash_white"]}
+      }
+    },
+    "mecanumDrive": {
+      "type": "object", "additionalProperties": false,
+      "required": ["id", "type", "center", "side", "handedness", "wheel", "coupler", "motor", "bracket", "hardware", "appearances"],
+      "properties": {
+        "id": {"type": "string", "pattern": "^[A-Za-z_][A-Za-z0-9_-]*$", "maxLength": 64},
+        "name": {"type": "string", "minLength": 1, "maxLength": 100},
+        "type": {"const": "mecanum_drive"},
+        "center": {"$ref": "#/$defs/point3"},
+        "side": {"enum": ["left", "right"]},
+        "handedness": {"enum": ["A", "B"]},
+        "wheel": {"$ref": "#/$defs/mecanumWheel"},
+        "coupler": {"$ref": "#/$defs/mecanumCoupler"},
+        "motor": {"$ref": "#/$defs/mecanumMotor"},
+        "bracket": {"$ref": "#/$defs/mecanumBracket"},
+        "hardware": {"$ref": "#/$defs/mecanumHardware"},
+        "appearances": {"$ref": "#/$defs/mecanumAppearances"}
+      }
+    },
+    "edgeChamfer": {
+      "type": "object", "additionalProperties": false,
+      "required": ["id", "type", "target_body", "distance", "selection"],
+      "properties": {
+        "id": {"type": "string", "pattern": "^[A-Za-z_][A-Za-z0-9_-]*$", "maxLength": 64},
+        "name": {"type": "string", "minLength": 1, "maxLength": 100},
+        "type": {"const": "edge_chamfer"},
+        "target_body": {"type": "string", "minLength": 1, "maxLength": 100},
+        "distance": {"$ref": "#/$defs/expression"},
+        "selection": {"enum": ["top_perimeter", "bottom_perimeter", "top_and_bottom_perimeters", "all"]}
+      }
+    },
+    "rectangularPattern": {
+      "type": "object", "additionalProperties": false,
+      "required": ["id", "type", "target_feature", "direction_one", "quantity_one", "spacing_one"],
+      "dependentRequired": {
+        "direction_two": ["quantity_two", "spacing_two"],
+        "quantity_two": ["direction_two", "spacing_two"],
+        "spacing_two": ["direction_two", "quantity_two"]
+      },
+      "properties": {
+        "id": {"type": "string", "pattern": "^[A-Za-z_][A-Za-z0-9_-]*$", "maxLength": 64},
+        "name": {"type": "string", "minLength": 1, "maxLength": 100},
+        "type": {"const": "rectangular_pattern"},
+        "target_feature": {"type": "string", "minLength": 1, "maxLength": 100},
+        "direction_one": {"enum": ["x", "y", "z"]},
+        "quantity_one": {"type": "integer", "minimum": 2, "maximum": 256},
+        "spacing_one": {"$ref": "#/$defs/expression"},
+        "direction_two": {"enum": ["x", "y", "z"]},
+        "quantity_two": {"type": "integer", "minimum": 2, "maximum": 256},
+        "spacing_two": {"$ref": "#/$defs/expression"}
+      }
+    },
+    "circularPattern": {
+      "type": "object", "additionalProperties": false,
+      "required": ["id", "type", "target_feature", "axis", "quantity", "total_angle"],
+      "properties": {
+        "id": {"type": "string", "pattern": "^[A-Za-z_][A-Za-z0-9_-]*$", "maxLength": 64},
+        "name": {"type": "string", "minLength": 1, "maxLength": 100},
+        "type": {"const": "circular_pattern"},
+        "target_feature": {"type": "string", "minLength": 1, "maxLength": 100},
+        "axis": {"enum": ["x", "y", "z"]},
+        "quantity": {"type": "integer", "minimum": 2, "maximum": 256},
+        "total_angle": {"$ref": "#/$defs/expression"},
+        "symmetric": {"type": "boolean"}
+      }
+    },
+    "resultChecks": {
+      "type": "object", "additionalProperties": false, "minProperties": 1,
+      "properties": {
+        "body_count": {"type": "integer", "minimum": 0, "maximum": 4096},
+        "required_bodies": {
+          "type": "array", "minItems": 1, "maxItems": 256, "uniqueItems": true,
+          "items": {"type": "string", "minLength": 1, "maxLength": 100}
+        },
+        "minimum_size": {"$ref": "#/$defs/point3"},
+        "maximum_size": {"$ref": "#/$defs/point3"}
       }
     }
   }
