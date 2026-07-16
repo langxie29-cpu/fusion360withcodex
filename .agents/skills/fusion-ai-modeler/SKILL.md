@@ -1,15 +1,15 @@
 ---
 name: fusion-ai-modeler
-description: Turn an uploaded hand sketch, dimensioned drawing, reference image, or natural-language mechanical requirement into a validated, editable Fusion 360 model through the local fusion360 MCP bridge. Use for sketch-to-CAD, brackets, plates, enclosures, motor mounts, bearing interfaces, and other parametric mechanical parts; also use to inspect or revise a model already open in Fusion 360.
+description: Turn an uploaded hand sketch, dimensioned drawing, reference image, or natural-language mechanical requirement into a validated, editable Fusion 360 model through the local fusion360 MCP bridge. Use for sketch-to-CAD, detailed multi-plane parts, brackets, plates, enclosures, motor mounts, bearing interfaces, patterned features, compound holes, mecanum drive assemblies, and other parametric mechanical work; also use to inspect or revise a model already open in Fusion 360.
 ---
 
 # Fusion AI Modeler
 
-Convert what is visible in an uploaded image into an explicit `ModelPlan`, validate it, execute only typed Fusion tools, and verify the resulting geometry from screenshots.
+Convert what is visible in an image uploaded to GPT into an explicit `ModelPlan`, validate it, execute only typed Fusion tools, and verify the resulting geometry from screenshots and result assertions.
 
 ## Non-negotiable rules
 
-- Inspect the image with the current multimodal GPT model. Do not run a local OCR, OpenCV, edge-detection, or image-vectorization pipeline.
+- Inspect the image uploaded in the chat with the current multimodal GPT model. Do not run a local OCR, OpenCV, edge-detection, or image-vectorization pipeline.
 - Separate visible facts from inferred geometry. Never infer real-world scale from pixels alone.
 - Never invent a vendor-part dimension. Use the bundled catalog only as a candidate interface and label generic values as unverified until an exact manufacturer part number or datasheet is available.
 - Default to `mode="new_document"`. Modify `active_document` only when the user explicitly asks to change the open design.
@@ -35,6 +35,10 @@ Summarize:
 
 Ask only for ambiguities that would materially change topology or fit. For cosmetic details, state a reversible assumption and continue. If there is no scale reference or dimension, request one real dimension before building.
 
+For high-detail work, inspect close crops or additional views when the first image does not resolve
+fillet radii, hole style, slot endpoints, edge breaks, mating faces, or repeated-feature spacing.
+Do not treat visual resemblance as dimensional confirmation.
+
 ### 3. Resolve standard-part interfaces
 
 For motors, bearings, fasteners, shafts, fans, or other purchased parts, run:
@@ -55,6 +59,8 @@ Save the candidate plan to a JSON file and validate it locally:
 python .agents/skills/fusion-ai-modeler/scripts/validate_model_plan.py <plan.json>
 ```
 
+Use ModelPlan `1.1` for multi-plane geometry, slots, compound holes, chamfers, patterns,
+result checks, or `mecanum_drive`; retain `1.0` only for backward-compatible simple plans.
 Fix every validation error before calling Fusion.
 
 ### 5. Stage and build
@@ -71,16 +77,30 @@ Capture at least `iso-top-right`, `top`, and the most informative orthographic s
 - feature count, location, and symmetry;
 - through-holes versus blind cuts;
 - interfaces against confirmed part dimensions.
+- required body names, body count, and size bounds when `result_checks` are present.
 
 If the result is wrong, revise the plan and build a fresh document unless the user asked for in-place editing. End with a concise list of assumptions and unverified dimensions.
 
-## Supported MVP features
+## Supported ModelPlan features
 
 - `box`: rectangular prism on an XY offset plane.
-- `cylinder`: circular extrusion on an XY offset plane.
-- `sketch_extrude`: rectangle, circle, closed polyline, exact rounded rectangle, or annulus profile; positive or negative direction.
-- `hole_pattern`: one or more circular cuts, blind or positive-direction through-all.
-- `edge_fillet`: constant-radius fillet on the top, bottom, both perimeter levels, or all edges of a named body.
+- `cylinder`: circular extrusion along X, Y, or Z.
+- `sketch_extrude`: rectangle, circle, closed polyline, exact rounded rectangle, annulus, or angled slot on XY, XZ, or YZ.
+- `hole_pattern`: simple, counterbored, or countersunk holes on XY, XZ, or YZ; blind or through-all.
+- `edge_fillet` and `edge_chamfer`: typed edge treatments on a named body.
+- `rectangular_pattern` and `circular_pattern`: repeat an earlier named feature along typed directions or axes.
+- `mecanum_drive`: generate one detailed, bounded wheel/roller, coupler, geared-motor, bracket, and fastener assembly with A/B roller handedness.
+- `result_checks`: assert final body count, required body names, and minimum or maximum overall size.
+
+Prefer a native compound hole over stacked circular cuts, one seed feature plus a typed pattern
+over repeated copied profiles, and an explicit slot over a near-capsule rounded rectangle. Use
+fillets and chamfers only after the target body exists. Name every body and pattern seed uniquely.
+
+For mecanum chassis work, use one `mecanum_drive` per corner, pair A/B hands to form the intended
+roller-axis pattern, and inspect front, rear, top, and underside views. Treat all wheel, shaft,
+coupler, bracket, and fastener values as purchased-part interfaces requiring measurement or a
+primary datasheet. The generated arbitrary-axis bodies live in a named BaseFeature: revise the
+ModelPlan and regenerate after changing their dimensions.
 
 Any feature can optionally use a typed `appearance` preset: `silver_aluminum`, `silver_glass`,
 `silver_metal`, `black_glass`, `black`, or `flash_white`. Presets resolve only through Fusion's

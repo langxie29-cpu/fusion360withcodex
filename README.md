@@ -8,9 +8,9 @@ dimensioned drawing, reference image, or mechanical requirement to a capable GPT
 the bundled Codex skill converts it into a validated, editable Fusion model without exposing
 arbitrary Python execution inside Fusion.
 
-> **Status:** `v0.1.0` alpha. The constrained workflow is usable for XY-driven parametric
-> parts. Loft, sweep, side-plane sketches, assemblies, threads, and export are not yet part
-> of the typed protocol.
+> **Status:** `v0.2.0` alpha. ModelPlan 1.1 adds multi-plane sketches, slots, compound holes,
+> chamfers, typed patterns, result assertions, and a detailed mecanum drive-module generator.
+> Loft, sweep, threads, joints, and export are not yet part of the typed protocol.
 
 中文简介：这是一个面向 Fusion 的安全型 AI 参数建模项目。GPT 负责理解上传的草图，
 `ModelPlan` 负责表达可审计的建模意图，本机 Fusion Add-In 只执行白名单特征并返回多视图截图。
@@ -24,7 +24,7 @@ smaller, auditable interface instead:
 flowchart LR
     A["Uploaded sketch or requirement"] --> B["Multimodal GPT analysis"]
     B --> C["Facts, uncertainties, assumptions"]
-    C --> D["ModelPlan 1.0 JSON"]
+    C --> D["ModelPlan 1.1 JSON"]
     D --> E["Local validation and one-time staging"]
     E --> F["Typed Fusion features"]
     F --> G["Inspection and screenshots"]
@@ -40,11 +40,14 @@ Fusion. All writes must pass the versioned ModelPlan validator and a separate st
 - Localhost-only Fusion Add-In in `fusion-addin/FusionAIModeler`.
 - Dependency-free ModelPlan validator and JSON Schema.
 - Parameters and typed features:
-  - boxes and cylinders;
-  - rectangle, circle, closed polyline, tangent rounded-rectangle, and annulus profiles;
-  - positive or negative XY sketch extrusion;
-  - blind or through-all circular hole patterns;
-  - constant-radius edge fillets on named bodies;
+  - boxes and X/Y/Z-axis cylinders;
+  - rectangle, circle, closed polyline, tangent rounded-rectangle, annulus, and angled-slot profiles;
+  - positive or negative XY, XZ, and YZ sketch extrusion;
+  - simple, counterbored, or countersunk holes, blind or through-all;
+  - constant-radius edge fillets and equal-distance chamfers on named bodies;
+  - one- or two-direction rectangular patterns and axis-driven circular patterns;
+  - a detailed mecanum wheel, coupler, geared motor, bracket, and hardware assembly feature;
+  - final body-count, required-body, and bounding-size assertions;
   - constrained appearance presets for silver metal, glass, black glass, and flash details.
 - Plan staging with a 30-minute expiry and one-time plan IDs.
 - Active-design inspection and orthographic/isometric viewport screenshots.
@@ -53,7 +56,7 @@ Fusion. All writes must pass the versioned ModelPlan validator and a separate st
 
 ## Detailed, original examples
 
-The repository includes three brand-neutral examples created and smoke-tested in Fusion.
+The repository includes brand-neutral examples for several application patterns.
 They demonstrate different application patterns without copying proprietary product geometry:
 
 | Example | Application | Detail level |
@@ -61,6 +64,7 @@ They demonstrate different application patterns without copying proprietary prod
 | [Generic sensor enclosure](examples/generic-sensor-enclosure.modelplan.json) | Desktop or industrial sensing | Rounded shell and lid, vents, optical window, fasteners, status light, service button |
 | [Robotics control panel](examples/robotics-control-panel.modelplan.json) | Robot or lab controller | Display recess and glass, rotary and push controls, indicators, rear standoffs |
 | [Configurable stepper mount](examples/configurable-stepper-mount.modelplan.json) | Generic motor integration | Parametric pitch, locating ring, annular spacers, frame holes, ribs, isolation pads |
+| [Generic mecanum drive module](examples/generic-mecanum-drive-module.modelplan.json) | Mobile robotics drive integration | Nine angled barrel rollers, detailed hub, coupler, geared motor, bracket, fasteners, result checks |
 
 These are editable design examples, not manufacturing specifications. Verify loads, tolerances,
 clearances, sealing, materials, and the exact purchased-part interfaces for the real application.
@@ -109,6 +113,17 @@ Upload a sketch and ask, for example:
 
 The skill can also inspect or revise the active design when the user explicitly requests an
 in-place edit.
+
+In another Codex task opened from this repository or from the configured `robot` project, upload
+the sketch directly to GPT and mention `$fusion-ai-modeler`. For example:
+
+> Use `$fusion-ai-modeler` to build this uploaded sketch in Fusion. Use ModelPlan 1.1, preserve
+> uncertain dimensions as parameters, validate before staging, and return orthographic plus
+> isometric screenshots.
+
+For a wheel module, validate and stage
+`examples/generic-mecanum-drive-module.modelplan.json`. Change `side` and `handedness` for each
+corner and visually verify the roller-axis pattern before treating it as a four-wheel chassis.
 
 ## ModelPlan example
 
@@ -182,11 +197,10 @@ tests/                              Dependency-free unit tests
 
 ## Roadmap
 
-- side-plane and face-attached sketches;
-- slots, pockets, chamfers, patterns, lofts, and sweeps;
+- face-attached sketches, pockets, lofts, and sweeps;
 - STEP, STL, and F3D export through typed tools;
-- assembly and purchased-part interface workflows;
-- geometric result assertions and Fusion-driven integration fixtures;
+- typed joints and broader purchased-part interface workflows;
+- broader geometric assertions and Fusion-driven integration fixtures;
 - broader appearance-library localization.
 
 ## License and attribution

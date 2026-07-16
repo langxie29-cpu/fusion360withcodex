@@ -5,7 +5,7 @@
   "description": {
     "": "Local typed MCP bridge for GPT-assisted Fusion 360 modeling"
   },
-  "version": "0.1.0",
+  "version": "0.2.0",
   "runOnStartup": true,
   "supportedOS": "windows|mac",
   "editEnabled": true,
